@@ -56,6 +56,13 @@ io.on('connection', (socket) => {
 });
 
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-});
+
+// Only start the server if this file is run directly (not imported by Jest)
+if (require.main === module) {
+    server.listen(PORT, () => {
+        console.log(`Server running on http://localhost:${PORT}`);
+    });
+}
+
+// Export the server and io instances for testing
+module.exports = { server, io };
