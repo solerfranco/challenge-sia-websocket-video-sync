@@ -61,8 +61,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function fetchTemperature() {
         try {
-            // TODO: Replace placeholder with weather API
-            tempDisplay.innerText = "24°C";
+            // Coordinates set to Buenos Aires.
+            const url = 'https://api.open-meteo.com/v1/forecast?latitude=-34.61&longitude=-58.38&current_weather=true';
+            
+            tempDisplay.innerText = "Loading...";
+            
+            const response = await fetch(url);
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            
+            const data = await response.json();
+            const temp = data.current_weather.temperature;
+            
+            tempDisplay.innerText = `${temp}°C in Buenos Aires`;
+            
         } catch (error) {
             console.error("Error fetching weather:", error);
             tempDisplay.innerText = "Weather unavailable";
