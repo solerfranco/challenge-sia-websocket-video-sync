@@ -3,60 +3,87 @@ document.addEventListener('DOMContentLoaded', () => {
     const video = document.getElementById('sync-video');
     const tempDisplay = document.getElementById('temperature-display');
 
-    // Flag to prevent infinite broadcast loops when receiving an event from the server
-    let isExternalEvent = false;
-    
+    let ignoreNextPlay = false;
+    let ignoreNextPause = false;
+    let ignoreNextSeek = false;
+
     socket.on('initSync', (data) => {
-        isExternalEvent = true;
+        ignoreNextSeek = true;
         video.currentTime = data.currentTime;
 
-        if (data.isPlaying) {
+        if (data.isPlaying && video.paused) {
+            ignoreNextPlay = true;
             let playPromise = video.play();
             if (playPromise !== undefined) {
                 playPromise.catch(error => {
+                    ignoreNextPlay = false;
                     console.warn("Autoplay blocked on initial load:", error);
                 });
             }
-        } else {
+        } else if (!data.isPlaying && !video.paused) {
+            ignoreNextPause = true;
             video.pause();
         }
     });
 
     video.addEventListener('play', () => {
-        if (!isExternalEvent) socket.emit('play', video.currentTime);
-        isExternalEvent = false;
+        if (ignoreNextPlay) {
+            ignoreNextPlay = false;
+            return;
+        }
+        socket.emit('play', video.currentTime);
     });
 
     video.addEventListener('pause', () => {
-        if (!isExternalEvent) socket.emit('pause', video.currentTime);
-        isExternalEvent = false;
+        if (ignoreNextPause) {
+            ignoreNextPause = false;
+            return;
+        }
+        socket.emit('pause', video.currentTime);
     });
 
     video.addEventListener('seeked', () => {
-        if (!isExternalEvent) socket.emit('seek', video.currentTime);
-        isExternalEvent = false;
+        if (ignoreNextSeek) {
+            ignoreNextSeek = false;
+            return;
+        }
+        socket.emit('seek', video.currentTime);
     });
 
+    
     socket.on('play', (time) => {
-        isExternalEvent = true;
-        if (typeof time === 'number') video.currentTime = time;
-        let playPromise = video.play();
-        if (playPromise !== undefined) {
-            playPromise.catch(error => {
-                console.warn("Autoplay blocked:", error);
-            });
+        if (typeof time === 'number' && Math.abs(video.currentTime - time) > 0.5) {
+            ignoreNextSeek = true;
+            video.currentTime = time;
+        }
+        if (video.paused) {
+            ignoreNextPlay = true;
+            let playPromise = video.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    ignoreNextPlay = false;
+                    console.warn("Autoplay blocked:", error);
+                });
+            }
         }
     });
 
     socket.on('pause', (time) => {
-        isExternalEvent = true;
-        if (typeof time === 'number') video.currentTime = time;
-        video.pause();
+        if (typeof time === 'number' && Math.abs(video.currentTime - time) > 0.5) {
+            ignoreNextSeek = true;
+            video.currentTime = time;
+        }
+        if (!video.paused) {
+            ignoreNextPause = true;
+            video.pause();
+        }
     });
 
     socket.on('seek', (time) => {
-        isExternalEvent = true;
-        video.currentTime = time;
+        if (Math.abs(video.currentTime - time) > 0.5) {
+            ignoreNextSeek = true;
+            video.currentTime = time;
+        }
     });
 
     async function fetchTemperature() {
