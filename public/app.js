@@ -5,14 +5,30 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Flag to prevent infinite broadcast loops when receiving an event from the server
     let isExternalEvent = false;
+    
+    socket.on('initSync', (data) => {
+        isExternalEvent = true;
+        video.currentTime = data.currentTime;
+
+        if (data.isPlaying) {
+            let playPromise = video.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(error => {
+                    console.warn("Autoplay blocked on initial load:", error);
+                });
+            }
+        } else {
+            video.pause();
+        }
+    });
 
     video.addEventListener('play', () => {
-        if (!isExternalEvent) socket.emit('play');
+        if (!isExternalEvent) socket.emit('play', video.currentTime);
         isExternalEvent = false;
     });
 
     video.addEventListener('pause', () => {
-        if (!isExternalEvent) socket.emit('pause');
+        if (!isExternalEvent) socket.emit('pause', video.currentTime);
         isExternalEvent = false;
     });
 
@@ -21,14 +37,20 @@ document.addEventListener('DOMContentLoaded', () => {
         isExternalEvent = false;
     });
 
-
-    socket.on('play', () => {
+    socket.on('play', (time) => {
         isExternalEvent = true;
-        video.play();
+        if (typeof time === 'number') video.currentTime = time;
+        let playPromise = video.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(error => {
+                console.warn("Autoplay blocked:", error);
+            });
+        }
     });
 
-    socket.on('pause', () => {
+    socket.on('pause', (time) => {
         isExternalEvent = true;
+        if (typeof time === 'number') video.currentTime = time;
         video.pause();
     });
 
@@ -37,7 +59,6 @@ document.addEventListener('DOMContentLoaded', () => {
         video.currentTime = time;
     });
 
-    // Placeholder function for Channel 2
     async function fetchTemperature() {
         try {
             // TODO: Replace placeholder with weather API
