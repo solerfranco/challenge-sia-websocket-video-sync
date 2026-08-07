@@ -7,7 +7,9 @@
     "start": "node src/server.js",
     "build": "webpack",
     "dev": "webpack --mode development --watch",
-    "test": "jest"
+    "test": "jest",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +23,7 @@
     "@babel/core": "^8.0.1",
     "@babel/preset-env": "^8.0.2",
     "babel-loader": "^10.1.1",
+    "cypress": "^15.20.0",
     "jest": "^30.4.2",
     "socket.io-client": "^4.8.3",
     "webpack": "^5.109.2",
