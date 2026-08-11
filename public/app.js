@@ -129,6 +129,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     fetchTemperature();
+
+    //To avoid having an outdated temperature value, i refresh it every 30 minutes
+
+    //In case having multiple clients doing this API call causes an issue with rate limiting or unnesesary costs
+    //then this could be replaced with something like SSE subscribing on page load and getting the temperature sent from the server
+    setInterval(() => {
+        fetchTemperature();
+    }, 1800000);
 });
 
 
