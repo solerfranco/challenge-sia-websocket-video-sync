@@ -28,4 +28,17 @@ describe('Video Sync Application', () => {
             expect($video[0].paused).to.be.false;
         });
     });
+
+    it('has a video that loops automatically', () => {
+        cy.visit('/');
+        cy.get('#sync-video').should('have.attr', 'loop');
+    });
+
+    it('adjusts layout for mobile devices', () => {
+        cy.viewport('iphone-6'); // Sets resolution to 375x667
+        cy.visit('/');
+        
+        cy.get('#channel-1').should('be.visible');
+        cy.get('#channel-2').should('be.visible');
+    });
 });
