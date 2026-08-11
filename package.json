@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node src/server.js",
     "build": "webpack",
-    "dev": "webpack --mode development --watch",
+    "dev": "concurrently \"node src/server.js\" \"webpack --mode development --watch\"",
     "test": "jest",
     "cypress:open": "cypress open",
     "cypress:run": "cypress run"
@@ -23,6 +23,7 @@
     "@babel/core": "^8.0.1",
     "@babel/preset-env": "^8.0.2",
     "babel-loader": "^10.1.1",
+    "concurrently": "^10.0.4",
     "cypress": "^15.20.0",
     "jest": "^30.4.2",
     "socket.io-client": "^4.8.3",
