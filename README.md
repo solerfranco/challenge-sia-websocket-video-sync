@@ -2,6 +2,8 @@
 
 A full-stack JavaScript application that allows connected clients to synchronize video playback (play, pause) in real-time.
 
+**🚀 Live Demo:** [https://challenge-sia-websocket-video-sync.onrender.com/](https://challenge-sia-websocket-video-sync.onrender.com/)
+
 ## Prerequisites
 - Node.js
 - NPM or Yarn
