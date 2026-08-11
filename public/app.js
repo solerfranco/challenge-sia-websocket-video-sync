@@ -2,6 +2,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const socket = io();
     const video = document.getElementById('sync-video');
     const tempDisplay = document.getElementById('temperature-display');
+    const weatherIcon = document.getElementById('weather-icon');
+
+    const weatherContent = document.querySelector('.weather-widget__content');
+    const weatherLoading = document.querySelector('.weather-widget__loading');
+    const weatherError = document.querySelector('.weather-widget__error');
 
     let ignoreNextPlay = false;
     let ignoreNextPause = false;
@@ -91,7 +96,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // Coordinates set to Buenos Aires.
             const url = 'https://api.open-meteo.com/v1/forecast?latitude=-34.61&longitude=-58.38&current_weather=true';
             
-            tempDisplay.innerText = "Loading...";
+            weatherLoading.style.display = 'block';
+            weatherContent.style.display = 'none';
+            weatherError.style.display = 'none';
             
             const response = await fetch(url);
             if (!response.ok) {
@@ -100,14 +107,63 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const data = await response.json();
             const temp = data.current_weather.temperature;
-            
-            tempDisplay.innerText = `${temp}°C in Buenos Aires`;
+
+            setWeatherIcon(data.current_weather.weathercode);
+            tempDisplay.innerText = `${temp}`;
+
+            weatherLoading.style.display = 'none';
+            weatherContent.style.display = 'flex';
             
         } catch (error) {
             console.error("Error fetching weather:", error);
             tempDisplay.innerText = "Weather unavailable";
+
+            weatherLoading.style.display = 'none';
+            weatherError.style.display = 'block';
+            
         }
+    }
+
+    function setWeatherIcon(weatherCode) {
+        weatherIcon.innerHTML = `<i class="${getWeatherIcon(weatherCode)}"></i>`;
     }
 
     fetchTemperature();
 });
+
+
+function getWeatherIcon(weatherCode) {
+    if (weatherCode === 0) {
+        return "fa-solid fa-sun";
+    }
+
+    if ([1, 2].includes(weatherCode)) {
+        return "fa-solid fa-cloud-sun";
+    }
+
+    if (weatherCode === 3) {
+        return "fa-solid fa-cloud";
+    }
+
+    if ([45, 48].includes(weatherCode)) {
+        return "fa-solid fa-smog";
+    }
+
+    if ([51, 53, 55, 56, 57].includes(weatherCode)) {
+        return "fa-solid fa-cloud-rain";
+    }
+
+    if ([61, 63, 65, 66, 67, 80, 81, 82].includes(weatherCode)) {
+        return "fa-solid fa-cloud-showers-heavy";
+    }
+
+    if ([71, 73, 75, 77, 85, 86].includes(weatherCode)) {
+        return "fa-solid fa-snowflake";
+    }
+
+    if ([95, 96, 99].includes(weatherCode)) {
+        return "fa-solid fa-cloud-bolt";
+    }
+
+    return "fa-solid fa-cloud";
+}

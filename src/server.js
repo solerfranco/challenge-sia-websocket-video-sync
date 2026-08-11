@@ -10,11 +10,13 @@ const io = new Server(server);
 app.use(express.static(path.join(__dirname, '../public')));
 
 // Central playback state stored in server memory
-let playerState = {
+const defaultState = () => ({
     isPlaying: false,
     currentTime: 0,
     lastUpdated: Date.now()
-};
+});
+
+let playerState = defaultState();
 
 io.on('connection', (socket) => {
     console.log('A client connected:', socket.id);
@@ -64,5 +66,10 @@ if (require.main === module) {
     });
 }
 
+// Helper function for testing
+function resetPlayerState() {
+    playerState = defaultState();
+}
+
 // Export the server and io instances for testing
-module.exports = { server, io };
+module.exports = { server, io, resetPlayerState};

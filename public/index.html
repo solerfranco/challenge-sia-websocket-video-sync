@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WebSocket Video Sync</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+    <script src="https://kit.fontawesome.com/1890501840.js" crossorigin="anonymous"></script>
 </head>
 <body>
     <main class="container">
@@ -15,8 +19,21 @@
             </video>
         </section>
         
-        <section id="channel-2" class="channel">
-            <div id="temperature-display">Loading temperature...</div>
+        <section id="channel-2" class="weather-widget">
+            <div class="weather-widget__content">
+                <!-- Elements are now direct siblings -->
+                <span class="weather-widget__location">Buenos Aires</span>
+                <div id="weather-icon" class="weather-widget__icon">
+                    <i class="fa-solid fa-cloud-sun"></i> <!-- Assuming FontAwesome here -->
+                </div>
+                <div class="weather-widget__temperature">
+                    <span id="temperature-display" class="weather-widget__temp-value">-</span>
+                    <span class="weather-widget__temp-unit">°C</span>
+                </div>
+            </div>
+            
+            <div class="weather-widget__loading" style="display: none;">Loading temperature...</div>
+            <div class="weather-widget__error" style="display: none;">Failed to load weather.</div>
         </section>
     </main>
     
